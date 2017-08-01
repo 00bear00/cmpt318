@@ -1,4 +1,9 @@
 
+# coding: utf-8
+
+# In[2]:
+
+
 #weather prediction
 import pandas as pd
 import numpy as np
@@ -24,7 +29,7 @@ images_df
 
 
 filenames = np.array(image_collection.files)
-print(filenames[0])
+# print(filenames[0])
 
 
 # In[21]:
@@ -53,7 +58,7 @@ images_df['Time'] = times[3]
 
 # In[25]:
 
-images_df
+#images_df
 
 
 # In[16]:
@@ -70,7 +75,7 @@ all_df = []
 for filename in filenames:
     all_df.append(pd.read_csv(filename, skiprows=15)) # first 15 rows are general information, which is not useful data.
 
-weather_condition = pd.concat(all_df)
+weather_condition = pd.concat(all_df).reset_index()
 
 # pd.read_csv('weather-51442-201607.csv', skiprows=15)
 
@@ -94,4 +99,20 @@ final_data = main_training_data_withoutHW.dropna()
 
 #data_whoseWeather_IsNaN
 #main_training_data
+
+
+
+# In[6]:
+
+merged_data = final_data.merge(right = images_df, on = ['Year', 'Month', 'Day', 'Time'], how = 'inner')
+
+
+# In[7]:
+
+# merged_data.to_csv('tem.csv')
+
+
+# In[ ]:
+
+
 
