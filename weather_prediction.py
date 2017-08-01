@@ -41,7 +41,7 @@ def get_time(path):
         # preocess match learned from https://docs.python.org/2/library/re.html
         # take the last match which will be file name
         result = matches[-1]
-        return (int(result[-14:-10]), int(result[-10:-8]), int(result[-8:-6]), result[-6:-4] + ':' + result[-4:-2]) 
+        return (int(result[-14:-10]), int(result[-10:-8]), int(result[-8:-6]), result[-6:-4] + ':' + result[-4:-2])
     else:
         return "wrong input file name format"
 get_time = np.vectorize(get_time)
@@ -102,7 +102,7 @@ final_data = main_training_data_withoutHW.dropna()
 
 
 
-<<<<<<< HEAD
+
 # In[6]:
 
 merged_data = final_data.merge(right = images_df, on = ['Year', 'Month', 'Day', 'Time'], how = 'inner')
@@ -117,7 +117,6 @@ merged_data = final_data.merge(right = images_df, on = ['Year', 'Month', 'Day', 
 
 
 
-=======
 
 
 
@@ -136,4 +135,3 @@ def simpleWeather(inputStr):
     return result
 
 simpleWeather('Showers,Snow Showers')
->>>>>>> 3dab8a9ea8b9a627d8affab4ed1824ec466e2d3d
