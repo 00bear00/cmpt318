@@ -69,7 +69,17 @@ images_df
 
 
 
-# In[ ]:
+#load csv file
+import glob
 
+#reference: for load multiple file from forder: https://stackoverflow.com/questions/20906474/import-multiple-csv-files-into-pandas-and-concatenate-into-one-dataframe
+filenames = glob.glob('yvr-weather/*.csv')
+all_df = []
+for filename in filenames:
+    all_df.append(pd.read_csv(filename, skiprows=15)) # first 15 rows are general information, which is not useful data.
+
+weather_condition = pd.concat(all_df)
+
+# pd.read_csv('weather-51442-201607.csv', skiprows=15)
 
 
