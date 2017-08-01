@@ -102,6 +102,7 @@ final_data = main_training_data_withoutHW.dropna()
 
 
 
+<<<<<<< HEAD
 # In[6]:
 
 merged_data = final_data.merge(right = images_df, on = ['Year', 'Month', 'Day', 'Time'], how = 'inner')
@@ -116,3 +117,23 @@ merged_data = final_data.merge(right = images_df, on = ['Year', 'Month', 'Day', 
 
 
 
+=======
+
+
+
+
+# Jacky
+result = final_data.groupby(by=['Weather']).count()
+import re
+rain = re.compile(r'Rain')
+snow = re.compile(r'Snow')
+def simpleWeather(inputStr):
+    matchesRain = rain.search(inputStr)
+    result = ''
+#     print(matches[0])
+    if matches:
+        result = result + matches[0]
+    return result
+
+simpleWeather('Showers,Snow Showers')
+>>>>>>> 3dab8a9ea8b9a627d8affab4ed1824ec466e2d3d
