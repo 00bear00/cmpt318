@@ -95,3 +95,23 @@ final_data = main_training_data_withoutHW.dropna()
 #data_whoseWeather_IsNaN
 #main_training_data
 
+
+
+
+
+
+
+# Jacky
+result = final_data.groupby(by=['Weather']).count()
+import re
+rain = re.compile(r'Rain')
+snow = re.compile(r'Snow')
+def simpleWeather(inputStr):
+    matchesRain = rain.search(inputStr)
+    result = ''
+#     print(matches[0])
+    if matches:
+        result = result + matches[0]
+    return result
+
+simpleWeather('Showers,Snow Showers')
