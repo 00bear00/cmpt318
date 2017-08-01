@@ -39,3 +39,30 @@ weather_condition = pd.concat(all_df)
 
 # pd.read_csv('weather-51442-201607.csv', skiprows=15)
 
+
+
+
+
+
+
+
+
+
+
+
+#cleaning data
+cleaned_data = weather_condition.drop(['index','Data Quality'], axis=1)
+cleaned_data = cleaned_data.drop(['Temp Flag', 'Stn Press Flag','Wind Chill Flag', 'Hmdx Flag', 'Visibility Flag', 'Wind Spd Flag', 'Wind Dir Flag', 'Rel Hum Flag', 'Dew Point Temp Flag'], axis=1)
+
+#type(weather_condition['Year'][0])
+
+data_whoseWeather_IsNaN = cleaned_data[~ weather_condition.Weather.notnull()] # weather with Nan
+main_training_data = cleaned_data[weather_condition.Weather.notnull()] # weather without Nan
+
+main_training_data_withoutHW = main_training_data.drop(['Hmdx', 'Wind Chill'],axis=1)
+final_data = main_training_data_withoutHW.dropna()
+# main_training_data = cleaned_data.copy()
+
+#data_whoseWeather_IsNaN
+#main_training_data
+
