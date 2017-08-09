@@ -7,7 +7,7 @@
 # - KELVIN
 # - JACKY
 
-# In[ ]:
+# In[1]:
 
 import pandas as pd
 import numpy as np
@@ -21,26 +21,26 @@ import glob
 
 # ### i. Load Webcam Images
 
-# In[ ]:
+# In[2]:
 
 image_collection = imread_collection('katkam-scaled/*.jpg')
 images_np = np.array(image_collection)
 
 
-# In[ ]:
+# In[3]:
 
 # # IMAGE IN NUMPY ARRAY.
 # images_np
 # images_np.shape
 
 
-# In[ ]:
+# In[4]:
 
 images_df = pd.DataFrame(
     images_np.reshape(images_np.shape[0],images_np.shape[1] * images_np.shape[2] * images_np.shape[3]))
 
 
-# In[ ]:
+# In[5]:
 
 # IMAGE IN PANDAS DATAFRAME, AND BEEN RESHAPED.
 # images_df
@@ -48,7 +48,7 @@ images_df = pd.DataFrame(
 
 # ## ii. Load Weather Observations Data
 
-# In[ ]:
+# In[6]:
 
 #reference: for load multiple file from forder: https://stackoverflow.com/questions/20906474/import-multiple-csv-files-into-pandas-and-concatenate-into-one-dataframe
 weather_obv_filenames = glob.glob('yvr-weather/*.csv')
@@ -60,7 +60,7 @@ for filename in weather_obv_filenames:
 weather_obv_df = pd.concat(weather_obv_df).reset_index()
 
 
-# In[ ]:
+# In[7]:
 
 # WEATHER OBSERVATIONS DATAFRAME.
 # weather_obv_df
@@ -70,13 +70,13 @@ weather_obv_df = pd.concat(weather_obv_df).reset_index()
 
 # ### i. Clean Webcam Images
 
-# In[ ]:
+# In[8]:
 
 # GET IMAGE FILE_NAME
 image_filenames = np.array(image_collection.files)
 
 
-# In[ ]:
+# In[9]:
 
 # extract image shoot date from filename
 re_image_date = re.compile(r'katkam-\d\d\d\d\d\d\d\d\d\d\d\d\d\d')
@@ -93,13 +93,13 @@ get_image_time = np.vectorize(get_image_time)
 images_date = get_image_time(image_filenames)
 
 
-# In[ ]:
+# In[10]:
 
 # EXTRACTED IMAGE DATE
 # images_date
 
 
-# In[ ]:
+# In[11]:
 
 # add relevant columns
 images_df['Year'] = images_date[0]
@@ -108,7 +108,7 @@ images_df['Day'] = images_date[2]
 images_df['Time'] = images_date[3]
 
 
-# In[ ]:
+# In[12]:
 
 # IMAGE DATA WITH DATE TIME
 # images_df
@@ -116,34 +116,34 @@ images_df['Time'] = images_date[3]
 
 # ## ii. Clean Weather Observations Data
 
-# In[ ]:
+# In[13]:
 
 # DROP UNNECESSARY COLUMNS
 cleaned_weather_obv = weather_obv_df.drop(['index','Data Quality'], axis=1)
 cleaned_weather_obv = cleaned_weather_obv.drop(['Temp Flag', 'Stn Press Flag','Wind Chill Flag', 'Hmdx Flag', 'Visibility Flag', 'Wind Spd Flag', 'Wind Dir Flag', 'Rel Hum Flag', 'Dew Point Temp Flag'], axis=1)
 
 
-# In[ ]:
+# In[14]:
 
 # SPLIT cleaned_weather INTO TWO DATAFRAME, ONE WITH NaN WEATHER COLUMN, ONE WITH NOT NaN COLUMN
 data_whoseWeather_IsNaN = cleaned_weather_obv[~ cleaned_weather_obv.Weather.notnull()] # weather with Nan
 main_training_data = cleaned_weather_obv[cleaned_weather_obv.Weather.notnull()] # weather without Nan
 
 
-# In[ ]:
+# In[15]:
 
 # TWO SPLIT DATAFRAME
 # data_whoseWeather_IsNaN
 # main_training_data.shape
 
 
-# In[ ]:
+# In[16]:
 
 main_training_data_withoutHW = main_training_data.drop(['Hmdx', 'Wind Chill'],axis=1)
 final_data = main_training_data_withoutHW.dropna().copy()
 
 
-# In[ ]:
+# In[17]:
 
 # final_data
 
@@ -156,14 +156,14 @@ final_data = main_training_data_withoutHW.dropna().copy()
 # - Snow: Moderate Snow, Snow Pellets	,Ice Pellets, Snow Showers
 # ### we decide to use five categories :Clear, Cloudy, Fog, Rain, and Snow
 
-# In[ ]:
+# In[18]:
 
 # CHECK THE TOTAL VARIOUS WEATHER DESCRIPTION BEFORE CLEANING
 # weather_category = final_data.groupby('Weather').count()
 # weather_category
 
 
-# In[ ]:
+# In[19]:
 
 # for reduce # of class
 def removeDuplicate(lst):
@@ -177,7 +177,7 @@ def removeDuplicate(lst):
     return newlst
 
 
-# In[ ]:
+# In[20]:
 
 re_clear = re.compile(r'Clear')
 re_cloudy = re.compile(r'Cloudy')
@@ -228,13 +228,13 @@ def clean_weather_description(Str):
     return result[:-1]
 
 
-# In[ ]:
+# In[21]:
 
 # CLEAN THE WEATHER DESCRIPTION CATEGORY
 final_data['Weather'] =final_data['Weather'].apply(clean_weather_description)
 
 
-# In[ ]:
+# In[22]:
 
 # final_data[final_data['Weather'] == 'Rain']
 # SHOW THE NEW WEATHER CATEGORY
@@ -245,17 +245,17 @@ weather_category
 
 # ## iii. Join Cleaned Webcam Image and Cleaned Weather obserbations Data Together
 
-# In[ ]:
+# In[23]:
 
 merged_data = final_data.merge(right = images_df, on = ['Year', 'Month', 'Day', 'Time'], how = 'inner')
 
 
-# In[ ]:
+# In[24]:
 
 merged_data
 
 
-# In[ ]:
+# In[25]:
 
 merged_data.iloc[:,13:]
 
@@ -266,7 +266,7 @@ merged_data.iloc[:,13:]
 
 #  ### 1. <font color="black">Split train_test data</font>
 
-# In[ ]:
+# In[26]:
 
 from sklearn.model_selection import train_test_split
 X = merged_data.iloc[:,13:]
@@ -276,7 +276,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y)
 
 # ### 2. <font color="black">try Bayesian Classifier</font>
 
-# In[ ]:
+# In[27]:
 
 from sklearn.naive_bayes import GaussianNB
 model = GaussianNB()
@@ -284,7 +284,7 @@ model.fit(X_train, y_train)
 print(model.score(X_test, y_test)) #within 1 min
 
 
-# In[ ]:
+# In[28]:
 
 from scipy import stats
 print(stats.normaltest(X_train).pvalue)
@@ -294,7 +294,7 @@ print(stats.normaltest(X_train).pvalue)
 
 # ### 3. <font color="black">SVC</font>
 
-# In[ ]:
+# In[29]:
 
 from sklearn.svm import SVC
 model = SVC(kernel='linear')
@@ -302,7 +302,7 @@ model.fit(X_train, y_train)
 print(model.score(X_test, y_test))  #57 0.622103386809
 
 
-# In[ ]:
+# In[30]:
 
 # trying different parameter values
 # model = SVC(kernel='rbf', decision_function_shape='ovr')     #score = 0.397504456328   around 23min
@@ -315,7 +315,7 @@ print(model.score(X_test, y_test))
 
 # ### 3.1<font color="black">PCA + SVC</font>
 
-# In[ ]:
+# In[31]:
 
 from sklearn.pipeline import make_pipeline
 from sklearn.decomposition import PCA
@@ -327,7 +327,7 @@ model.fit(X_train, y_train)
 print(model.score(X_test, y_test))   #0.614973262032/0.620320855615   37-39 2 min fast 18-20
 
 
-# In[ ]:
+# In[32]:
 
 # adjust C parameter
 from sklearn.pipeline import make_pipeline
@@ -340,20 +340,20 @@ model.fit(X_train, y_train)
 print(model.score(X_test, y_test)) # little bit better 0.625668449198 / 0.6096256684492.run in 03min
 
 
-# In[ ]:
+# In[33]:
 
-# adjust PCA parameter
-from sklearn.pipeline import make_pipeline
-from sklearn.decomposition import PCA
-model = make_pipeline(
-    PCA(100),
-    SVC(kernel='linear', C=2.0)
-)
-model.fit(X_train, y_train)
-print(model.score(X_test, y_test)) #02 - 36  very slow, why????? around 35 min
+# # adjust PCA parameter. commentted out since very time consuming
+# from sklearn.pipeline import make_pipeline
+# from sklearn.decomposition import PCA
+# model = make_pipeline(
+#     PCA(100),
+#     SVC(kernel='linear', C=2.0)
+# )
+# model.fit(X_train, y_train)
+# print(model.score(X_test, y_test)) #02 - 36  very slow around 35 min
 
 
-# In[ ]:
+# In[34]:
 
 # adjust PCA parameter
 from sklearn.pipeline import make_pipeline
@@ -368,7 +368,7 @@ print(model.score(X_test, y_test)) #with in 2 min  refine pca   0.654188948307
 
 # ### 4. <font color="black">Nearest Neighbours</font>
 
-# In[ ]:
+# In[35]:
 
 from sklearn.neighbors import KNeighborsClassifier
 model = KNeighborsClassifier(n_neighbors=10)
@@ -379,7 +379,7 @@ print(model.score(X_test, y_test)) #4 min   0.609625668449 = neighbor5
 
 # ### 5. <font color="black">neural_network</font>
 
-# In[ ]:
+# In[36]:
 
 from sklearn.neural_network import MLPClassifier
 model = MLPClassifier(solver='lbfgs', hidden_layer_sizes=(), random_state=0)
@@ -388,7 +388,7 @@ model.fit(X_train, y_train)
 print(model.score(X_test, y_test))   # 1 min 0.393939393939
 
 
-# In[ ]:
+# In[37]:
 
 from sklearn.neural_network import MLPClassifier
 model = MLPClassifier(solver='lbfgs', hidden_layer_sizes=(10, 30),
@@ -402,7 +402,7 @@ print(model.score(X_test, y_test)) #  5 min 0.399286987522
 
 # ### 1. add weather condition to X and split data set
 
-# In[ ]:
+# In[38]:
 
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.svm import SVC
@@ -415,7 +415,7 @@ X_condition_train, X_condition_test, y_condition_train, y_condition_test = train
 
 # ### 2. Bayesian classifier
 
-# In[ ]:
+# In[39]:
 
 from sklearn.naive_bayes import GaussianNB
 model = GaussianNB()
@@ -425,7 +425,7 @@ print(model.score(X_condition_test, y_condition_test)) #0.549019607843 less than
 
 # ### 3. Nearest Neighbours
 
-# In[ ]:
+# In[40]:
 
 from sklearn.neighbors import KNeighborsClassifier
 model = KNeighborsClassifier(n_neighbors=10)
@@ -435,7 +435,7 @@ print(model.score(X_condition_test, y_condition_test)) #0.668449197861 n=10 5min
 
 # ### 4. <font color="black">SVC try add Scaler, not very different</font>
 
-# In[ ]:
+# In[41]:
 
 from sklearn.pipeline import make_pipeline   #with scaler
 from sklearn.decomposition import PCA
@@ -450,7 +450,7 @@ print(model.score(X_condition_test, y_condition_test))
 
 # ### 4.1 SVC <font color="black">Without Scaler</font>
 
-# In[ ]:
+# In[42]:
 
 from sklearn.pipeline import make_pipeline
 from sklearn.decomposition import PCA
@@ -463,12 +463,12 @@ print(best_model.score(X_condition_test, y_condition_test))
 #0.704    this is the best accuracy we can get
 
 
-# ## iii. <font color="black">try to deal with multilabel</font>
+# ## iii. <font color="black">try to deal with multilabel (commentted out because we will not use them as final answer)</font>
 # 
 
 # <font color="black">method 1): only use first weather in the weather column. eg: 'Rain,Fog' becomes 'Rain'. The result did not change too much.</font>
 
-# In[ ]:
+# In[43]:
 
 # def cleanMultiLabel(inputstr):
 #     lst = inputstr.split(",")
@@ -478,7 +478,7 @@ print(best_model.score(X_condition_test, y_condition_test))
 # y_condition = merged_data['Weather'].apply(cleanMultiLabel)
 
 
-# In[ ]:
+# In[44]:
 
 # # y_condition   #there only one weather description in  'Weather' column.
 # X_condition_train, X_condition_test, y_condition_train, y_condition_test = train_test_split(X_condition, y_condition)
@@ -495,22 +495,22 @@ print(best_model.score(X_condition_test, y_condition_test))
 
 # <font color="black"> method 2 :using multilabelbinarizer </font>
 
-# In[ ]:
+# In[45]:
 
 #change the type of Weather column
-def change_str_to_array(s):
-    return s.split(',')
-# change y_train and y_test into proper shape
-from sklearn.preprocessing import MultiLabelBinarizer
-y_condition = MultiLabelBinarizer().fit_transform(merged_data['Weather'].apply(change_str_to_array))
-X_condition_train, X_condition_test, y_condition_train, y_condition_test = train_test_split(X_condition, y_condition)
-from sklearn.multiclass import OneVsRestClassifier
-model = make_pipeline(
-    PCA(5000),
-    OneVsRestClassifier(SVC(kernel='linear', C=2.0))
-)
-model.fit(X_condition_train, y_condition_train)
-print(model.score(X_condition_test, y_condition_test))  #57% with multilable, <<70.4. maybe because most row are single lablled.
+# def change_str_to_array(s):
+#     return s.split(',')
+# # change y_train and y_test into proper shape
+# from sklearn.preprocessing import MultiLabelBinarizer
+# y_condition = MultiLabelBinarizer().fit_transform(merged_data['Weather'].apply(change_str_to_array))
+# X_condition_train, X_condition_test, y_condition_train, y_condition_test = train_test_split(X_condition, y_condition)
+# from sklearn.multiclass import OneVsRestClassifier
+# model = make_pipeline(
+#     PCA(5000),
+#     OneVsRestClassifier(SVC(kernel='linear', C=2.0))
+# )
+# model.fit(X_condition_train, y_condition_train)
+# print(model.score(X_condition_test, y_condition_test))  #57% with multilable, <<70.4. maybe because most row are single lablled.
 
 
 # In[ ]:
@@ -522,7 +522,7 @@ print(model.score(X_condition_test, y_condition_test))  #57% with multilable, <<
 
 # ## <font color="black">using our best model,find what are the wrong predictions, and analy it to figure out why these predictions are wrong</font>
 
-# In[ ]:
+# In[46]:
 
 
 comparsion = pd.DataFrame({'truth': y_condition_test, 'prediction': best_model.predict(X_condition_test)})
@@ -534,7 +534,7 @@ comparsion_with_date = result[['Date/Time','Time','prediction','truth']]
 
 # 1) how many wrong prediction are there  for each hour of the day? 
 
-# In[ ]:
+# In[47]:
 
 difference = comparsion_with_date[comparsion_with_date['truth'] != comparsion_with_date['prediction']]
 print(difference.groupby('Time').count())
@@ -544,9 +544,10 @@ print(merged_data.groupby('Time').count())
 
 # 2) beyond the above question, what is the percentages of wrong predictions in each hour of the day?
 
-# In[ ]:
+# In[48]:
 
 percentage_wrong_prediction = difference.groupby('Time').count() / comparsion_with_date.groupby('Time').count()
+print(percentage_wrong_prediction)
 # highest percentage (most wrong predictions) for 6am maybe because before sun raise, hard to tell if its fog, rain, etc. low percentage (least wrong prediction) for 8 pm, 9 pm seems best but maybe we do not have enough data points at 8 pm and 9pm (because NA for weather column and we dropped it). 11am seems very good. 
 
 
@@ -554,7 +555,7 @@ percentage_wrong_prediction = difference.groupby('Time').count() / comparsion_wi
 
 # ### i. Using image to predict time of the day, running the following code may cost about 10 minutes
 
-# In[ ]:
+# In[49]:
 
 #generate training set and test set
 X = images_df.iloc[:,:-4]
@@ -562,7 +563,7 @@ y = images_df['Time']
 X_train, X_test, y_train, y_test = train_test_split(X, y)
 
 
-# In[ ]:
+# In[50]:
 
 #trying to use SVC model 
 model = SVC(kernel='linear')
@@ -570,7 +571,7 @@ model.fit(X_train, y_train)
 print(model.score(X_test, y_test))  # 0.46
 
 
-# In[ ]:
+# In[51]:
 
 #trying to use SVC model with PCA
 model = make_pipeline(
